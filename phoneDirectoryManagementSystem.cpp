@@ -99,7 +99,7 @@ int main() {
     string currentPath = fs::current_path().string();
     int ch;
 
-    cout << "\nWelcome to Phone Directory and File Management System\n";
+    cout << "\nWelcome to Directory and File Management System\n";
     do {
         cout << "\nMain Menu\n";
         cout << "_____________\n";
@@ -134,7 +134,7 @@ int main() {
                     }
                     case 3: {
                         string pattern;
-                        cout << "Enter the file name pattern (e.g., moha*.*): ";
+                        cout << "Enter the file name pattern: ";
                         cin >> pattern;
                         listFilesByPattern(currentPath, pattern);
                         break;

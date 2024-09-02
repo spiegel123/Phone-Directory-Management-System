@@ -1,33 +1,31 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
-using namespace std;
+#include <limits>
+#include <fstream>  // For file operations
 
 namespace fs = std::filesystem;
-
-
-int lastIndex = 0;
+using namespace std;
 
 class Directory
 {
-public:
+public: 
     long phoneno;
-    string fname, lname;
+    string fname,  lname;
 
-    Directory(long phoneno = 0, string fname = "", string lname = "")
-        : phoneno(phoneno), fname(fname), lname(lname) {}
+    Directory(long phoneno = 0,  string fname = "",  string lname = "")
+        :  phoneno(phoneno),  fname(fname),  lname(lname) {}
 };
 
-
-void listAllFiles(const string& path) { // TO see the list files
-    cout << "List of all Files:\n";
+void listAllFiles(const string& path) {
+    cout << "List of all Files: \n";
     for (const auto& entry : fs::directory_iterator(path)) {
         cout << entry.path().filename().string() << endl;
     }
 }
 
-void listFilesByExtension(const string& path, const string& extension) { // to see list of  extension files
-    cout << "Listing Files with Extension: " << extension << endl;
+void listFilesByExtension(const string& path,  const string& extension) {
+    cout << "Listing Files with Extension:  " << extension << endl;
     int count = 0;
     for (const auto& entry : fs::directory_iterator(path)) {
         if (fs::is_regular_file(entry) && entry.path().extension() == extension) {
@@ -39,8 +37,8 @@ void listFilesByExtension(const string& path, const string& extension) { // to s
         cout << "No files found with extension " << extension << endl;
 }
 
-void listFilesByPattern(const string& path, const string& pattern) { // too see files from extension
-    cout << "Listing Files Matching Pattern: " << pattern << endl;
+void listFilesByPattern(const string& path,  const string& pattern) {
+    cout << "Listing Files Matching Pattern:  " << pattern << endl;
     int count = 0;
     for (const auto& entry : fs::directory_iterator(path)) {
         if (fs::is_regular_file(entry) && entry.path().filename().string().find(pattern) != string::npos) {
@@ -52,50 +50,63 @@ void listFilesByPattern(const string& path, const string& pattern) { // too see 
         cout << "No files found matching pattern " << pattern << endl;
 }
 
-void createDirectory(const string& path) { // To create new directory
-    if (fs::create_directory(path)) {
-        cout << "Directory Successfully Created:" << path << endl;
+void createDirectory(const string& path) {
+    if (fs::create_directories(path)) { // Use create_directories for nested paths
+        cout << "Directory Successfully Created:  " << path << endl;
     } else {
-        cout << "Error" << endl;
+        cout << "Failed to create directory or directory already exists." << endl;
     }
 }
 
-void changeDirectory(string& path) { // To change directory
+void createFile(const string& path) {
+    ofstream file(path);
+    if (file) {
+        cout << "File successfully created:  " << path << endl;
+    } else {
+        cout << "Failed to create file:  " << path << endl;
+    }
+}
+
+void changeDirectory(string& path) {
     int choice;
-    cout << "Change Directory Options:\n";
-    cout << "1. Step by step backward. \n";
-    cout << "2.Goto Root Directory.\n";
-    cout << "3. Forward directory. \n";
-    cout << "Enter your choice: ";
-    cin >> choice;
+    cout << "Change Directory Options: \n";
+    cout << "_____________\n";
+    cout << "1. Step by step backward.\n";
+    cout << "2. Go to Root Directory.\n";
+    cout << "3. Forward directory.\n";
+    cout << "Enter your choice:  ";
+    while (!(cin >> choice) || (choice < 1 || choice > 3)) {
+        cout << "Invalid input. Please enter a number between 1 and 3:  ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
     switch (choice) {
-        case 1:
+        case 1: 
             path = fs::current_path().parent_path().string();
             break;
-        case 2:
+        case 2: 
             path = fs::path("/").string();
             break;
-        case 3: {
+        case 3:  {
             string newPath;
-            cout << "Enter the path of the directory: ";
-            cin >> newPath;
+            cout << "Enter the path of the directory:  ";
+            cin.ignore(); // Ignore the newline character from previous input
+            getline(cin, newPath);
             if (fs::exists(newPath) && fs::is_directory(newPath)) {
                 path = newPath;
             } else {
                 cout << "Invalid path or directory does not exist." << endl;
+                return;
             }
             break;
         }
-        default:
-            cout << "Invalid option!" << endl;
     }
-    fs::current_path(path); // Update the current working directory
-    cout << "Current directory changed to: " << fs::current_path() << endl;
+    fs::current_path(path);
+    cout << "Current directory changed to:  " << fs::current_path() << endl;
 }
 
 int main() {
-
     string currentPath = fs::current_path().string();
     int ch;
 
@@ -105,62 +116,80 @@ int main() {
         cout << "_____________\n";
         cout << "1. Display List of Files\n";
         cout << "2. Create a New Directory\n";
-        cout << "3. Change the Working Directory\n";
-        cout << "4. Exit\n";
-        cout << "Enter The Number: ";
-        cin >> ch;
+        cout << "3. Create a New File\n";
+        cout << "4. Change the Working Directory\n";
+        cout << "5. Exit\n";
+        cout << "Enter Your Choice:  ";
+        while (!(cin >> ch) || (ch < 1 || ch > 5)) {
+            cout << "Invalid input. Please enter a number between 1 and 5:  ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
 
-        switch (ch) { // main menu choices
-            case 1: {
+        switch (ch) {
+            case 1:  {
                 int subChoice;
                 cout << "\nList Files Detail\n";
-                cout << "\n_______________\n";
-                cout << "1. List all files .\n";
-                cout << "2. List of extension files.\n";
-                cout << "3. List of Name Wise     \n";
-                cout << "Enter your choice: ";
-                cin >> subChoice;
+                cout << "_______________\n";
+                cout << "1. List all files\n";
+                cout << "2. List files by extension\n";
+                cout << "3. List files by name pattern\n";
+                cout << "Enter your choice:  ";
+                while (!(cin >> subChoice) || (subChoice < 1 || subChoice > 3)) {
+                    cout << "Invalid input. Please enter a number between 1 and 3:  ";
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
 
-                switch (subChoice) { // DIsplay List of files choices
-                    case 1:
+                switch (subChoice) {
+                    case 1: 
                         listAllFiles(currentPath);
                         break;
-                    case 2: {
+                    case 2:  {
                         string extension;
-                        cout << "Enter the file extension (e.g., .txt): ";
+                        cout << "Enter the file extension (e.g.,  .txt):  ";
                         cin >> extension;
+                        if (extension.front() != '.') {
+                            extension = '.' + extension;
+                        }
                         listFilesByExtension(currentPath, extension);
                         break;
                     }
-                    case 3: {
+                    case 3:  {
                         string pattern;
-                        cout << "Enter the file name pattern: ";
+                        cout << "Enter the file name pattern:  ";
                         cin >> pattern;
                         listFilesByPattern(currentPath, pattern);
                         break;
                     }
-                    default:
-                        cout << "Invalid option!" << endl;
                 }
                 break;
             }
-            case 2: { // main menu choices
+            case 2:  {
                 string dirName;
-                cout << "Enter the name of the directory name: ";
+                cout << "Enter the name of the directory:  ";
                 cin >> dirName;
                 createDirectory(currentPath + "/" + dirName);
                 break;
             }
-            case 3: // main menu choices
-                changeDirectory (currentPath);
+            case 3:  {
+                string fileName;
+                cout << "Enter the name of the file to create:  ";
+                cin >> fileName;
+                createFile(currentPath + "/" + fileName);
                 break;
-            case 4: // main menu choices
+            }
+            case 4: 
+                changeDirectory(currentPath);
+                break;
+            case 5: 
                 cout << "Thank you for using the system. Exiting...\n";
-                return 0;
-            default:
+                break;
+            default: 
                 cout << "Invalid option! Please try again.\n";
         }
-    } while (ch != 4);
+    } while (ch != 5);
 
     return 0;
 }
+
